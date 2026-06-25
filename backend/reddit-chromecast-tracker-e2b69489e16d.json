@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "reddit-chromecast-tracker",
+  "private_key_id": "e2b69489e16d17b3b75653e26e8fd690789e33b1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQD22c/twHpo9joz\n4NfbDMBUmgacMEkEBBw8kM5pdA5NpOJf53bKaGBaqxM68CeagLJWAAVphRqqnqF4\nj9zmodS/SSrWEjCsuEH/T5fD7oQmLGjryVAs9lOtCzha3CZsvlkna4mT7idAhDwy\neXSeyxo1qiKwU3an6jfzxJJIKShH0KXVZ9/DvFJmX9SXYS1X7jKG+32n2CZ7NDfS\nPGcRFshzpCqjpVm/rorhcq/UyRsX/BLVLUcYvxrcIYA+nL+9boSZ6dkpNGGKJVdo\nMFhcqfQokgl4PRZiZg2oHDLJ42US9jB2g28+59j+NcwTs8y6lXymKV+8RUxOU9+z\nG1H0QYeBAgMBAAECggEABC/rpqpw08j2xxyAQiye3TsuSNtKJxxJZ6mZJrwbkKuZ\nqhYgs2GT3iswDKbi38G2b15ZY9HTLaO6ih3+mZbofJopdNoizeXjkLNxQpc60fRH\nj1Wp23641U2ZwMjNNLkB2s5TK27gZugXUU/db41zE11LG1c/GFgREjx6XWj9UEKB\nll2/6BX61IL2kfjZmlxd1G199GrhDVxrDsOiAx5Rl2b7aWW3hcNwmJtYo04GF7Ly\ngMVeT4IuPbumk25KWA+0mL7VlrFDIXkaMV/rXj76ZuROV1kGx/mnLemuBfcPL8Mi\nECIn7QswhVUTVEaIjP1hJae9SvvHVsAaXORaDRVe8QKBgQD8HvkysHRLbyw5Zkxq\nCPVLIFdVNZbSjtFmQwvObvvYc0rGthdRtKx3us8/6L9u0EfA1CO/lSmvS/qDZFjE\nnyxWlJMTdvuvNZUYJXowKnZrq+Er1glKY745macRYseNe5JGNUgQm6bsu84rRZtO\ndfnRtZjdx1uJ5Z3xHzymLoavVQKBgQD6phTNWmOG97Wyxb+UINh3dAAbauyg3Chi\nIt+qCeMy2SU8O0jjPYai1oM3vHJcb2GGV/YDW9yPH6UJMURqpgnWtz/5T+yW/MVx\nbfqwBqyq1FfYarId5iU4oy1fggh2mxP4PaaD5dspFoNqwsQ/vYYQ8qnGL0/ugHtW\nNPs9Sfg/fQKBgCeZ3d6eZMXsgm/Jp7sICS9xtwYFUtlj4XREl7gnKpvHEDnCJEuL\nK4Pq7d7F+ju3r22UZMEU9uU38/NrcZ4AuoAm+isWh1Xv/qk6ScUDBnLHHqk6B1+N\n5zU480sBzwJkJIeumtExAbkxjqKxXkGmukS8V3SOecxhKrvTAj3AFRu5AoGBAMQd\nWr1qceFSxBpC26k9IeIlI0hQmyEp4XcXrkVPQzOv75B3Goqiw0t56GWdzyVACOCi\nxlzObX6W1fyhTdTcYWpdK3MY9BcXZC1iTfmY31UynCE7Km52er0cAA5wocqbgD6F\njlo5aQd3FBBeoEr3MYTlOa1Vq4cDhH1pKwNDczfJAoGBANjRbOx8DVzQO9UuPJ9j\n0TA7fDw1NW+QWEgzwzAqA9RXhBhNQzB4IrH07y89GyNgalajGaxQE6mwkgp82Z7/\nH0xen7cVzt+IyI0vkSJ2Ez/PO+MW53+w7nTuAdEq8Vi8+U9Az0QpY/FSBSxLXKLE\ny7I7roF006/6TkjnFnodna1T\n-----END PRIVATE KEY-----\n",
+  "client_email": "sheets-scraper@reddit-chromecast-tracker.iam.gserviceaccount.com",
+  "client_id": "117355566559986502473",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/sheets-scraper%40reddit-chromecast-tracker.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

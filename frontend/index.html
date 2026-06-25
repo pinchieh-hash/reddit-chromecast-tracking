@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reddit-chromecast-tracking </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body class="p-8">
+
+    <div class="max-w-[1600px] mx-auto space-y-6">
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
+                <div class="flex items-center gap-2.5">
+                    <img src="https://www.redditstatic.com/desktop2x/img/favicon/apple-icon-57x57.png" alt="Reddit Logo"
+                        class="w-6 h-6">
+                    <span class="text-xl font-bold tracking-tight text-slate-900">reddit-chromecast-tracking</span>
+                    <span
+                        class="px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600 rounded-full border border-slate-200">last
+                        two weeks</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="fetchSheetData()"
+                        class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 hover:text-slate-800 transition-all flex items-center gap-2">
+                        🔄 Refresh Data
+                    </button>
+                    <a href="#" id="openSheetBtn"
+                        target="_blank"
+                        class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded-lg hover:bg-blue-100 transition-all flex items-center gap-1">
+                        ➕ Open Google Sheet
+                    </a>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[1500px]" id="issueTable">
+                    <thead>
+                        <tr
+                            class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-semibold tracking-wider uppercase">
+                            <th class="p-4 w-12 text-center">#</th>
+                            <th class="p-4 w-28">Issue Date</th>
+                            <th class="p-4 w-52">Component</th>
+                            <th class="p-4 w-44">Device Impacted</th>
+                            <th class="p-4 w-52">Symptom / Pain Point</th>
+                            <th class="p-4 w-24 text-center">Severity</th>
+                            <th class="p-4 w-64"> Title</th>
+                            <th class="p-4 w-80"> Body/Snippet</th>
+                            <th class="p-4 w-80">AI Summary</th>
+                            <th class="p-4 w-64">Source URL</th>
+                            <th class="p-4 w-28">Updated Time</th>
+                            <th class="p-4 w-32 text-center">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700 text-sm" id="tableBody">
+                        <tr id="loadingRow">
+                            <td colspan="12" class="p-12 text-center text-slate-400 font-medium">
+                                <div
+                                    class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-slate-300 border-t-blue-600 mr-2 align-middle">
+                                </div>
+                                Connecting to Google Sheets pipeline...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" id="statsDashboard">
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const SHEET_ID = (window.APP_CONFIG && window.APP_CONFIG.SHEET_ID) || 'your_spreadsheet_id_here';
+        const API_KEY = (window.APP_CONFIG && window.APP_CONFIG.API_KEY) || 'your_api_key_here';
+        const RANGE = (window.APP_CONFIG && window.APP_CONFIG.RANGE) || 'Sheet1!A2:L100';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const openSheetBtn = document.getElementById('openSheetBtn');
+            if (openSheetBtn && SHEET_ID && SHEET_ID !== 'your_spreadsheet_id_here') {
+                openSheetBtn.href = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
+            }
+        });
+
+        const mockData = [
+            [
+                "2026-06-25", "Platform > Android TV / Google TV", "Unknown -> CCwGTV 4K", "Connectivity > Frequent Disconnects", "P1", "CcwGTV and wifi disconnects", "I own about 4 CCwGTV, plenty of great wifi coverage and solid 1Gig fiber from ISP. Yet disconnect from wifi are very frequent and random.", "User experiences frequent and random Wi-Fi disconnections on multiple CCwGTV devices while other household tech remains stable.", "Flag to engineering team for Wi-Fi driver telemetry check and DHCP lease stability.", "https://www.reddit.com/r/Chromecast/comments/1uex7ec/ccwgtv_and_wifi_disconnects/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-24", "SDK > Receiver", "Android -> Streamer 4K", "App Setup > Setup Stalled", "P1", "New Streamer: Many apps wouldn't download", "Anyone know why I had to sideload a bunch of apps on a brand new Streamer? Dropout, Jellyfin, and PBS Kids all stalled download at 4%-7%.", "Brand new Google TV Streamer stalls at 4%-7% when attempting to download specific apps from Play Store.", "Coordinate with Play Store client team to track download manager telemetry on Streamer hardware.", "https://www.reddit.com/r/Chromecast/comments/1ue9k4w/new_streamer_many_apps_wouldnt_download/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-23", "MSP App Issue", "Unknown -> Chromecast Built-in", "Remote Control > Input Unresponsive", "P1", "Please Help", "My Chromecast remote will not work on Kayo after the latest update. The remote still works on u-tube just not Kayo.", "Chromecast voice remote stops functioning exclusively inside the Kayo app environment following a recent software update.", "Reach out to Kayo developer partners to review remote input mapping compatibility with the latest Android TV core update.", "https://www.reddit.com/r/Chromecast/comments/1udd3yk/please_help/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-23", "Platform > Android TV / Google TV", "Unknown -> CCwGTV HD", "Connectivity > Discovery Failure", "P3", "Chromecast WiFi problem", "When I turn it off using the remote control button and turn it back on the next day, a red warning icon appears indicating that the Wi-Fi has disconnected, but it reconnects automatically.", "CCwGTV HD shows a brief Wi-Fi disconnected warning icon upon waking up from standby mode before automatically reconnecting.", "Investigate standby power-state transitions and Wi-Fi chip sleep behavior on HD platform.", "https://www.reddit.com/r/Chromecast/comments/1udbpsg/chromecast_wifi_problem/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-22", "Platform > Android TV / Google TV", "Unknown -> CCwGTV", "Remote Control > Input Unresponsive", "P1", "Persistent Bluetooth Drops on Chromecast with Google TV", "After watching something for about an hour or two, the Chromecast suddenly drops all Bluetooth connections. The remote buttons stop working, and the audio stops playing through the speaker.", "Chromecast with Google TV completely drops all active Bluetooth connections (remote and external speaker) after 1-2 hours of playback.", "Analyze Bluetooth stack memory leaks or thermal throttling issues causing controller crash during sustained media streaming.", "https://www.reddit.com/r/Chromecast/comments/1ucqsxo/persistent_bluetooth_drops_on_chromecast_with/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-22", "MSP App Issue", "Unknown -> Chromecast", "General / Other", "P3", "Unable to change YouTube language when Casting", "Whenever I cast a movie I bought on YouTube to my TV with Chromecast, I CANNOT change the language. Sometimes it's in English, French, or German.", "User is unable to toggle or change the audio language track when casting purchased movies through the YouTube App.", "Escalate to YouTube Main App casting team to verify regional language track synchronization on cloud cast targets.", "https://www.reddit.com/r/Chromecast/comments/1uc71rf/unable_to_change_youtube_language_when_casting/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-21", "Platform > Cast Built-in (OEM/Home App)", "Unknown -> Chromecast 1st Gen", "App Setup > Setup Stalled", "P1", "Unable to set up gen1 Chromecast", "Google updated the home app and it won't set up my old Gen 1 Chromecast. It was detected but couldn't connect.", "Recent Google Home App update breaks the provisioning and setup workflow for legacy 1st Generation Chromecast hardware.", "Verify Google Home app backward compatibility and onboarding flow protocols for deprecated Gen1 hardware.", "https://www.reddit.com/r/Chromecast/comments/1uc1xuh/unable_to_set_up_gen1_chromecast/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-21", "Platform > Android TV / Google TV", "Unknown -> CCwGTV", "Remote Control > Input Unresponsive", "P1", "chromecast remote keeps disconnecting", "My chromecast remote stopped working, I checked the settings and saw that it was disconnected/unpaired. The ONLY thing that works is to unplug the whole chromecast from the socket.", "Chromecast remote frequently unpairs randomly and requires a full hard power cycle of the dongle to force re-pairing.", "Review Bluetooth pairing persistence state and kernel log reporting for remote disconnect events.", "https://www.reddit.com/r/Chromecast/comments/1ubtpx7/chromecast_remote_keeps_disconnecting/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "MSP App Issue", "iOS -> Chromecast", "Connectivity > Discovery Failure", "P3", "Casting Netflix issue/resolution", "Netflix App cannot see the Chromecast. I then noticed when I select the profile on Netflix it momentarily drops WiFi and hops on 4G.", "iOS Netflix App fails to discover Chromecast devices due to the app briefly switching network interfaces to cellular data during profile loading.", "Provide technical feedback to Netflix iOS engineering regarding network interface binding locks when initializing target discovery.", "https://www.reddit.com/r/Chromecast/comments/1ub7pw0/casting_netflix_issueresolution/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "Platform > Android TV / Google TV", "iPhone -> Samsung TV (Cast Built-in)", "Media Playback > Audio Sync / Cutout", "P1", "Samsung TV + Google Cast: Audio cuts out only during LIVE streams (video is perfect)", "Google Cast connects normally. LIVE channels start playing. Video is always perfect. Only the audio cuts out briefly every few seconds. If I rewind by 30 seconds, audio becomes stable.", "Google Cast built into Samsung Neo QLED suffers from periodic audio dropouts exclusively on live streams, while video remains flawless.", "Investigate media pipeline demuxing and audio buffer sizes for live HLS/DASH streams on Samsung CastLite runtimes.", "https://www.reddit.com/r/Chromecast/comments/1ub7iq2/samsung_tv_google_cast_audio_cuts_out_only_during/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "Feature > Mirroring", "iOS -> Chromecast", "Connectivity > Discovery Failure", "P3", "Anyone willing to test if my iPhone screen mirror app actually casts to your Chromecast setup?", "Indie dev here. I made a screen mirroring app for iPhone. It works fine on my LG (webOS), but the Chromecast side is the part I can't really test.", "Third-party iOS developer seeking community verification for a custom local screen mirroring app targeting Cast receivers.", "Monitor for potential API abuse or protocol deviations if application crashes receiver sessions at scale.", "https://www.reddit.com/r/Chromecast/comments/1ub6bxe/anyone_willing_to_test_if_my_iphone_screen_mirror/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "Platform > Android TV / Google TV", "Unknown -> Google TV Streamer 4K", "Media Playback > Audio Sync / Cutout", "P3", "Play UHD MKV content using Google TV Streamer 4K connected to an HD TV.", "I was wondering if anyone knows whether the Google TV Streamer 4K with Kodi can correctly downscale those same files to HD when connected to an older HD TV?", "User inquiry regarding the hardware decoding and downscaling capabilities of Google TV Streamer 4K for local high-bitrate UHD MKV files on 1080p outputs.", "No immediate action required; product question regarding local media playback capabilities through third-party apps.", "https://www.reddit.com/r/Chromecast/comments/1ub5zjy/play_uhd_mkv_content_using_google_tv_streamer_4k/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "MSP App Issue", "Android -> CCwGTV HD", "Connectivity > Discovery Failure", "P3", "Facebook streaming on Chromecast no longer available", "Haven't streamed Facebook videos from Android on Chromecast in a while but when I tried it recently I'm seeing there's no longer a cast icon on the video.", "Facebook Android App appears to have hidden or removed the native Google Cast sender button from its core video player view.", "Check with Partner Engineering to see if Meta has updated their Cast Sender SDK implementation or intentionally disabled features.", "https://www.reddit.com/r/Chromecast/comments/1ub4ox8/facebook_streaming_on_chromecast_no_longer/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "SDK > Receiver", "Unknown -> Chromecast 2nd Gen", "Media Playback > Audio Sync / Cutout", "P1", "Chromecast 2nd gen unable to cast YouTube livestreams specifically", "Casting a livestream causes a bug where it keeps replaying the same 3 second clip over and over unless you leave it for really long... Firmware 1.56.467165", "Legacy Chromecast 2nd Gen firmware (1.56.467165) stuck in an infinite 3-second playback loop when trying to parse YouTube Live streams.", "Escalate to YouTube Receiver app engineering; staged rollout firmware update likely broke MSE/EME buffer management on Eureka platforms.", "https://www.reddit.com/r/Chromecast/comments/1uaxjnu/chromecast_2nd_gen_unable_to_cast_youtube/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-20", "Platform > Cast Built-in (OEM/Home App)", "Unknown -> Chromecast 3rd Gen", "Connectivity > Discovery Failure", "P1", "Chromecast down?", "Performed a factory reset on the Chromecast, reset my WiFi Router, still cannot locate a Chromecast to set it back up in the Home app.", "Chromecast 3rd Gen enters un-discoverable state during onboarding setup loop within Google Home App after device reset.", "Cross-reference Home App mDNS/BLE setup logs to diagnose why legacy setup beacons fail parsing.", "https://www.reddit.com/r/Chromecast/comments/1uautxo/chromecast_down/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-18", "SDK > iOS Sender", "iOS -> Unknown", "Connectivity > Discovery Failure", "P3", "Best iOS IPTV app with actual working Chromecast?", "I’ve tried about 10 different apps and can’t find one that handles Chromecast properly. UHF stops loading as soon as you lock your phone.", "User looking for iOS IPTV apps with stable Cast implementations that do not tear down media sessions upon OS device lock screens.", "Review CAF iOS Sender SDK documentation updates regarding background execution and network session preservation rules.", "https://www.reddit.com/r/Chromecast/comments/1u9mhlg/best_ios_iptv_app_with_actual_working_chromecast/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-18", "Platform > Android TV / Google TV", "Unknown -> Google TV Streamer 4K", "Remote Control > Input Unresponsive", "P3", "Anyone successfully remapped Netflix and YT buttons on Google Streamer with TVQuickActions app", "used this app on TCL, SONY and works fine but cannot make it work on the streamer remote. When I go to map YT Netlfix They open those apps instead.", "Google TV Streamer remote prevents third-party accessibility apps from overriding and remapping hardcoded Netflix/YouTube hotkeys.", "Intended system security/commercial behavior; verify keyevent interception rules on Android 14 Streamer base image.", "https://www.reddit.com/r/Chromecast/comments/1u9j013/anyone_successfully_remapped_netflix_and_yt/", "2026-06-25 19:35:00", "Manually re-classified with source URL"
+            ],
+            [
+                "2026-06-21", "General / Other", "Unknown/Generic", "Connectivity > Unknown", "P4", "Unable to set up gen1 Chromecast", "Google updated the home app and it won't set up my old Gen 1 Chromecast. It was detected but couldn't connect.", "Unknown (Fallback)", "Monitor trend scale", "https://www.reddit.com/r/Chromecast/comments/1uc1xuh/unable_to_set_up_gen1_chromecast/", "2026-06-25 19:35:00", "Exceeded Gemini API rate limit (Structured fallback applied)"
+            ]
+        ];
+
+        async function fetchSheetData() {
+            const tbody = document.getElementById('tableBody');
+            if (!SHEET_ID || SHEET_ID === 'your_spreadsheet_id_here' || !API_KEY || API_KEY === 'your_api_key_here') {
+                console.log("Using mockData (missing or placeholder credentials in config.js).");
+                renderTable(mockData);
+                return;
+            }
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.values) {
+                    renderTable(result.values);
+                } else {
+                    renderTable(mockData);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setTimeout(() => { renderTable(mockData); }, 500);
+            }
+        }
+
+        function renderTable(rows) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            if (!rows || rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12" class="p-8 text-center text-slate-400">No triage reports found.</td></tr>`;
+                updateDashboard({});
+                return;
+            }
+
+            const stats = { androidTv: 0, castBuiltIn: 0, sdk: 0, mirroring: 0, external: 0, general: 0 };
+
+            rows.forEach((row, index) => {
+                const [date, component, device, symptom, severity, title, body, summary, action, sourceUrl, updated, remarks] = row;
+
+                // ⚡️ 修正後的 Severity 樣式邏輯
+                let severityClass = "bg-slate-100 text-slate-600";
+                if (severity === 'P1') severityClass = "bg-rose-50 text-rose-600 font-medium border border-rose-100";
+                if (severity === 'P2') severityClass = "bg-amber-50 text-amber-700 font-medium border border-amber-100";
+                if (severity === 'P3') severityClass = "bg-emerald-50 text-emerald-700 border border-emerald-100/60";
+
+                // 🎨 糖果色標籤樣式分配與動態統計計數
+                let compClass = "bg-slate-50 text-slate-600 border-slate-200 font-semibold";
+
+                if (component) {
+                    if (component.includes('Android TV') || component.includes('Google TV')) {
+                        compClass = "bg-emerald-50 text-emerald-700 border-emerald-200/60 font-semibold shadow-sm";
+                        stats.androidTv++;
+                    } else if (component.includes('Cast Built-in')) {
+                        compClass = "bg-blue-50 text-blue-700 border-blue-200/60 font-semibold shadow-sm";
+                        stats.castBuiltIn++;
+                    } else if (component.includes('SDK')) {
+                        compClass = "bg-purple-50 text-purple-700 border-purple-200/60 font-semibold shadow-sm";
+                        stats.sdk++;
+                    } else if (component.includes('Mirroring') || component.includes('Feature')) {
+                        compClass = "bg-amber-50 text-amber-700 border-amber-200/80 font-semibold shadow-sm";
+                        stats.mirroring++;
+                    } else if (component.includes('MSP')) {
+                        compClass = "bg-pink-50 text-pink-700 border-pink-200/60 font-semibold shadow-sm";
+                        stats.external++;
+                    } else if (component.includes('General')) {
+                        compClass = "bg-grey-50 text-grey-700 border-grey-200/60 font-semibold shadow-sm"; // 修正為 Grey 灰色
+                        stats.general++;
+                    }
+                }
+
+                const isRateLimited = remarks && remarks.includes("Exceeded");
+                const remarkDisplay = isRateLimited
+                    ? `<span class="px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-600 rounded-md border border-rose-100 inline-flex items-center gap-1">⚠️ Rate Limited</span>`
+                    : `<span class="px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-600 rounded-md border border-emerald-100/50 inline-flex items-center gap-1">✓ Processed</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors group";
+                tr.innerHTML = `
+                    <td class="p-4 text-center font-medium text-slate-400 text-xs">${index + 1}</td>
+                    <td class="p-4 font-semibold text-slate-900 whitespace-nowrap">${date || ''}</td>
+                    <td class="p-4">
+                        <span class="px-3 py-1 text-xs rounded-md border whitespace-nowrap ${compClass}">${component || ''}</span>
+                    </td>
+                    <td class="p-4 font-medium text-slate-600 text-xs">${device || ''}</td>
+                    <td class="p-4 text-slate-500 font-medium text-xs">${symptom || ''}</td>
+                    <td class="p-4 text-center">
+                        <span class="px-2.5 py-0.5 text-xs rounded-full ${severityClass}">${severity || ''}</span>
+                    </td>
+                    <td class="p-4 min-w-[250px] whitespace-normal">
+                        <div class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">${title || ''}</div>
+                    </td>
+                    <td class="p-4 min-w-[300px] whitespace-normal">
+                        <div class="text-xs text-slate-500 leading-relaxed">${body || ''}</div>
+                    </td>
+                    <td class="p-4 min-w-[400px] whitespace-normal">
+                        <div class="text-xs text-slate-700 font-medium bg-slate-50 border border-slate-100 rounded-lg p-3">${summary || ''}</div>
+                    </td>
+                    <td class="p-4">
+                        <a href="${sourceUrl || '#'}" target="_blank" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+                            ${sourceUrl ? 'Link' : ''}
+                        </a>
+                    </td>
+                    <td class="p-4 text-xs text-slate-400 whitespace-nowrap font-medium">${updated || ''}</td>
+                    <td class="p-4 text-center">${remarkDisplay}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateDashboard(stats);
+        }
+
+        function updateDashboard(stats) {
+            const container = document.getElementById('statsDashboard');
+
+            const cardsConfig = [
+                { title: "Android / Google TV", count: stats.androidTv || 0, bg: "bg-emerald-50/70", text: "text-emerald-700", border: "border-emerald-100", dot: "bg-emerald-500" },
+                { title: "Cast Built-in (OEM/Home App)", count: stats.castBuiltIn || 0, bg: "bg-blue-50/70", text: "text-blue-700", border: "border-blue-100", dot: "bg-blue-500" },
+                { title: "Sender/Receiver SDK", count: stats.sdk || 0, bg: "bg-purple-50/70", text: "text-purple-700", border: "border-purple-100", dot: "bg-purple-500" },
+                { title: "Mirroring", count: stats.mirroring || 0, bg: "bg-amber-50/70", text: "text-amber-700", border: "border-amber-100", dot: "bg-amber-500" },
+                { title: "MSP App Issue", count: stats.external || 0, bg: "bg-rose-50/70", text: "text-rose-700", border: "border-rose-100", dot: "bg-rose-500" },
+                { title: "General / Other", count: stats.general || 0, bg: "bg-grey-50/70", text: "text-grey-700", border: "border-grey-100", dot: "bg-grey-500" }
+            ];
+
+            container.innerHTML = cardsConfig.map(card => `
+                <div class="${card.bg} ${card.border} border rounded-xl p-4 transition-all duration-300 hover:shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-1">
+                            <p class="text-xs font-semibold ${card.text} tracking-wide uppercase opacity-80">${card.title}</p>
+                            <p class="text-3xl font-bold text-slate-800">${card.count}</p>
+                        </div>
+                        <span class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full ${card.dot} opacity-40"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 ${card.dot}"></span>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = fetchSheetData;
+    </script>
+</body>
+
+</html>

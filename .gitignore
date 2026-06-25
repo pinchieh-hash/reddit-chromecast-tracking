@@ -1,0 +1,27 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+*.pyc
+__pycache__/
+
+# Google Cloud Service Account Credentials & Sensitive JSON files
+backend/*.json
+*-credentials.json
+reddit-chromecast-tracker-*.json
+
+# OS / IDE generated files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Frontend Configuration Secrets
+config.js
+frontend/config.js
