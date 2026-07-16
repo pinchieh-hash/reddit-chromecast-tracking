@@ -2,6 +2,7 @@
 
 A lightweight tool that monitors `r/chromecast` for user issues, uses Google Gemini AI to triage and classify them, and displays the insights on a web dashboard.
 
+---
 ## 1. What This Project Is
 
 - **Backend**: A Python script that fetches recent posts from `r/chromecast`, uses **Google Gemini AI** to summarize and categorize issues (component, device impact, severity), and logs the reports to a Google Sheet.
@@ -13,8 +14,7 @@ The script tracks r/chromecast posts from the **past 14 days** using a resilient
 
 1. **Primary (JSON API)**: Queries `/new.json?limit=100` to fetch up to 100 of the latest posts.
 2. **Fallback (RSS Feed)**: If the JSON API is rate-limited (HTTP 403), it immediately falls back to `/new/.rss` (capped by Reddit at 25 posts).
-
-The `r/chromecast` subreddit averages **20–30 posts every two weeks**.
+3. The `r/chromecast` subreddit averages **20–30 posts every two weeks**.
 ---
 
 ## 2. Folder Structure
